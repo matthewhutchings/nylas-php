@@ -76,9 +76,15 @@ class Nylas {
         return $account;
     }
 
-    public function threads() {
+    public function threads($expanded = false) {
         $msgObj = new Models\Thread($this);
-        return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
+
+        $filters = [];
+        if($expanded) {
+            $filters['view'] = 'expanded';
+        }
+
+        return new NylasModelCollection($msgObj, $this, NULL, $filters, 0, array());
     }
 
     public function messages() {
