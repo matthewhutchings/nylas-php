@@ -93,24 +93,6 @@ class Nylas
         return $response;
     }
 
-    public function deactivateAccount($accountId) {
-
-        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
-
-        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
-
-        return $response;
-    }
-
-    public function reactivateAccount($accountId) {
-
-        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
-
-        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
-
-        return $response;
-    }
-
     public function account()
     {
         $apiObj = new NylasAPIObject();
@@ -119,6 +101,25 @@ class Nylas
         $account = $apiObj->_createObject($accountData->klass, NULL, $accountData->data);
 
         return $account;
+    }
+
+    public function deactivateAccount($accountId)
+    {
+        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
+
+        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
+
+        return $response;
+    }
+
+    public function reactivateAccount($accountId)
+    {
+
+        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
+
+        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
+
+        return $response;
     }
 
     public function threads()
