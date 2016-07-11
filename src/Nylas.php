@@ -10,6 +10,7 @@ class Nylas
     protected $apiServer = 'https://api.nylas.com';
     protected $apiClient;
     protected $apiToken;
+    protected $appSecret;
     public $apiRoot = '';
 
     public function __construct($appID, $appSecret, $token = NULL, $apiServer = NULL)
@@ -27,6 +28,19 @@ class Nylas
     protected function createHeaders()
     {
         $token = 'Basic '.base64_encode($this->apiToken.':');
+        $headers = [
+            'headers' => [
+                'Authorization' => $token,
+                'X-Nylas-API-Wrapper' => 'php'
+            ]
+        ];
+
+        return $headers;
+    }
+
+    protected function createAdminHeaders()
+    {
+        $token = 'Basic '.base64_encode($this->appSecret.':');
         $headers = [
             'headers' => [
                 'Authorization' => $token,
@@ -75,6 +89,24 @@ class Nylas
         if(array_key_exists('access_token', $response)) {
             $this->apiToken = $response['access_token'];
         }
+
+        return $response;
+    }
+
+    public function deactivateAccount($accountId) {
+
+        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
+
+        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
+
+        return $response;
+    }
+
+    public function reactivateAccount($accountId) {
+
+        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
+
+        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
 
         return $response;
     }
