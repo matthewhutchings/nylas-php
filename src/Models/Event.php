@@ -4,23 +4,37 @@ namespace Nylas\Models;
 
 use Nylas\NylasAPIObject;
 
-
-class Event extends NylasAPIObject {
-
+class Event extends NylasAPIObject
+{
     public $collectionName = 'events';
-    public $attrs = array("id", "namespace_id", "title", "description",
-                          "location", "read_only", "when", "busy",
-                          "participants", "calendar_id", "recurrence",
-                          "status", "master_event_id", "original_start_time");
+    public $attrs = [
+        "id",
+        "namespace_id",
+        "title",
+        "description",
+        "location",
+        "read_only",
+        "when",
+        "busy",
+        "participants",
+        "calendar_id",
+        "recurrence",
+        "status",
+        "master_event_id",
+        "original_start_time"
+    ];
 
-    public function __construct($api) {
+    public function __construct($api)
+    {
         parent::__construct();
         $this->api = $api;
         $this->namespace = NULL;
     }
 
-    public function create($data, $api=NULL) {
-        $sanitized = array();
+    public function create($data, $api = NULL)
+    {
+        $sanitized = [];
+
         foreach($this->attrs as $attr) {
             if(array_key_exists($attr, $data)) {
                 $sanitized[$attr] = $data[$attr];
@@ -47,8 +61,10 @@ class Event extends NylasAPIObject {
         return $this->api->_createResource($this->namespace, $this, $this->data);
     }
 
-    public function update($data) {
-        $sanitized = array();
+    public function update($data)
+    {
+        $sanitized = [];
+
         foreach($this->attrs as $attr) {
             if(array_key_exists($attr, $data)) {
                 $sanitized[$attr] = $data[$attr];
@@ -59,8 +75,8 @@ class Event extends NylasAPIObject {
     }
 
 
-    public function delete() {
+    public function delete()
+    {
         return $this->klass->_deleteResource($this->namespace, $this, $this->id);
     }
-
 }
