@@ -74,7 +74,7 @@ class Thread extends NylasAPIObject
 
     public function trash()
     {
-        return $this->_updateTags(['trash'], []);
+        return $this->_updateTags(['trash'], ['inbox']);
     }
 
     public function star()
@@ -87,13 +87,34 @@ class Thread extends NylasAPIObject
         return $this->_updateTags([], ['starred']);
     }
 
-    private function _updateTags($add = [], $remove = [])
+    private function _updateTags($add = [], $delete = [])
     {
+        $allLabels = $this->klass->labels()->all();
+        $currentLabels = $this->labels;
+        $labels = [];
+
+        foreach($allLabels as $label) {
+            if (!empty($label->name) && in_array($label->name, $add) ||
+                empty($label->name) && in_array($label->display_name, $add)
+            ) {
+                array_push($labels, $label->id);
+            }
+        }
+
+        foreach($currentLabels as $index => $label) {
+            if (!empty($label['name']) && in_array($label['name'], $delete) ||
+                empty($label['name']) && in_array($label['display_name'], $delete)
+            ) {
+                continue;
+            }
+
+            array_push($labels, $label['id']);
+        }
+
         $payload = [
-            "add_tags" => $add,
-            "remove_tags" => $remove
+            "label_ids" => $labels
         ];
 
-        return $this->api->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
     }
 }

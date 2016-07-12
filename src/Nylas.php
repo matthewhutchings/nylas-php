@@ -90,7 +90,7 @@ class Nylas
             $this->apiToken = $response['access_token'];
         }
 
-        return $response;
+        return $this->apiToken;
     }
 
     public function account()
@@ -170,6 +170,24 @@ class Nylas
         return new NylasModelCollection($msgObj, $this, NULL, [], 0, []);
     }
 
+    public function deltas($cursor = NULL)
+    {
+        $filters = ['extra' => 'latest_cursor'];
+        $method = 'post';
+
+        if(!empty($cursor)) {
+            $filters = ['cursor' => $cursor];
+            $method = 'get';
+        }
+
+        $apiObj = new NylasAPIObject();
+        $nsObj = new Models\Delta();
+        $deltasData = $this->getResource('', $nsObj, '', $filters, $method);
+        $deltas = $apiObj->_createObject($deltasData->klass, NULL, $deltasData->data);
+
+        return $deltas;
+    }
+
     public function getResources($namespace, $klass, $filter)
     {
         $suffix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
@@ -186,21 +204,14 @@ class Nylas
         return $mapped;
     }
 
-    public function getResource($namespace, $klass, $id, $filters)
+    public function getResource($namespace, $klass, $id, $filters, $method = 'get')
     {
-        $extra = '';
-
-        if(array_key_exists('extra', $filters)) {
-            $extra = $filters['extra'];
-            unset($filters['extra']);
-        }
-
-        $response = $this->getResourceRaw($namespace, $klass, $id, $filters);
+        $response = $this->getResourceRaw($namespace, $klass, $id, $filters, $method);
 
         return $klass->_createObject($this, $namespace, $response);
     }
 
-    public function getResourceRaw($namespace, $klass, $id, $filters)
+    public function getResourceRaw($namespace, $klass, $id, $filters, $method)
     {
         $extra = '';
         if(array_key_exists('extra', $filters)) {
@@ -208,11 +219,16 @@ class Nylas
             unset($filters['extra']);
         }
 
+        if(!empty($id)) {
+            $id = '/'.$id;
+        }
+
         $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $postfix = ($extra) ? '/'.$extra : '';
-        $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id.$postfix;
+        $url = $this->apiServer.$prefix.'/'.$klass->collectionName.$id.$postfix;
         $url = $url.'?'.http_build_query($filters);
-        $data = $this->apiClient->get($url, $this->createHeaders())->json();
+
+        $data = $this->apiClient->{$method}($url, $this->createHeaders())->json();
 
         return $data;
     }
@@ -232,9 +248,13 @@ class Nylas
             unset($filters['headers']);
         }
 
+        if(!empty($id)) {
+            $id = '/'.$id;
+        }
+
         $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $postfix = ($extra) ? '/'.$extra : '';
-        $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id.$postfix;
+        $url = $this->apiServer.$prefix.'/'.$klass->collectionName.$id.$postfix;
         $url = $url.'?'.http_build_query($filters);
         $customHeaders = array_merge($this->createHeaders()['headers'], $customHeaders);
         $headers = array('headers' => $customHeaders);
