@@ -79,6 +79,22 @@ class Thread extends NylasAPIObject
        }
     }
 
+    public function read() {
+        $payload = [
+            "unread" => false
+        ];
+
+        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+    }
+
+    public function unread() {
+        $payload = [
+            "unread" => true
+        ];
+
+        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+    }
+
     private function _updateTags($add = [], $delete = [])
     {
         $allLabels = $this->klass->labels()->all();
