@@ -115,8 +115,7 @@ class Thread extends NylasAPIObject
         $allFolders = $this->klass->folders()->all();
 
         foreach($allFolders as $currentFolder) {
-            if (!empty($currentFolder->name) && $currentFolder->name == $folder)
-            ) {
+            if (!empty($currentFolder->name) && $currentFolder->name == $folder) {
                 $folderId = $currentFolder->id;
             }
         }
