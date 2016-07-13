@@ -170,6 +170,12 @@ class Nylas
         return new NylasModelCollection($msgObj, $this, NULL, [], 0, []);
     }
 
+    public function folders()
+    {
+        $msgObj = new Models\Folder($this);
+        return new NylasModelCollection($msgObj, $this, NULL, [], 0, []);
+    }
+
     public function deltas($cursor = NULL)
     {
         $filters = ['extra' => 'latest_cursor'];

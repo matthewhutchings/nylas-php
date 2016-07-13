@@ -52,39 +52,31 @@ class Thread extends NylasAPIObject
         return $this->_updateTags([], $tags);
     }
 
-    public function markAsRead()
+    public function archive($type = 'label')
     {
-        return $this->_updateTags([], ['unread']);
+       if($type == 'label') {
+           return $this->_updateTags([], ['inbox']);
+       } else if($type == 'folder') {
+           return $this->_updateFolders('archive');
+       }
     }
 
-    public function markAsSeen()
+    public function unarchive($type = 'label')
     {
-        return $this->_updateTags([], ['unseen']);
+       if($type == 'label') {
+           return $this->_updateTags(['inbox'], ['archive']);
+       } else if($type == 'folder') {
+           return $this->_updateFolders('inbox');
+       }
     }
 
-    public function archive()
+    public function trash($type = 'label')
     {
-        return $this->_updateTags(['archive'], ['inbox']);
-    }
-
-    public function unarchive()
-    {
-        return $this->_updateTags(['inbox'], ['archive']);
-    }
-
-    public function trash()
-    {
-        return $this->_updateTags(['trash'], ['inbox']);
-    }
-
-    public function star()
-    {
-        return $this->_updateTags(['starred'], []);
-    }
-
-    public function unstar()
-    {
-        return $this->_updateTags([], ['starred']);
+       if($type == 'label') {
+           return $this->_updateTags(['trash'], ['inbox']);
+       } else if($type == 'folder') {
+           return $this->_updateFolders('trash');
+       }
     }
 
     private function _updateTags($add = [], $delete = [])
@@ -116,5 +108,27 @@ class Thread extends NylasAPIObject
         ];
 
         return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+    }
+
+    private function _updateFolder($folder)
+    {
+        $allFolders = $this->klass->folders()->all();
+
+        foreach($allFolders as $currentFolder) {
+            if (!empty($currentFolder->name) && $currentFolder->name == $folder)
+            ) {
+                $folderId = $currentFolder->id;
+            }
+        }
+
+        if (isset($folderId)) {
+            $payload = [
+                "folder_id" => $folderId
+            ];
+
+            return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        }
+
+        return ["success" => false];
     }
 }
