@@ -57,7 +57,7 @@ class Thread extends NylasAPIObject
        if($type == 'label') {
            return $this->_updateTags([], ['inbox']);
        } else if($type == 'folder') {
-           return $this->_updateFolders('archive');
+           return $this->_updateFolder('archive');
        }
     }
 
@@ -66,7 +66,7 @@ class Thread extends NylasAPIObject
        if($type == 'label') {
            return $this->_updateTags(['inbox'], ['archive']);
        } else if($type == 'folder') {
-           return $this->_updateFolders('inbox');
+           return $this->_updateFolder('inbox');
        }
     }
 
@@ -75,7 +75,16 @@ class Thread extends NylasAPIObject
        if($type == 'label') {
            return $this->_updateTags(['trash'], ['inbox']);
        } else if($type == 'folder') {
-           return $this->_updateFolders('trash');
+           return $this->_updateFolder('trash');
+       }
+    }
+
+    public function move($type = 'label', $from, $to)
+    {
+       if($type == 'label') {
+            return $this->_updateTags([$to], [$from]);
+       } else if($type == 'folder') {
+            return $this->_updateFolder($to);
        }
     }
 
@@ -129,14 +138,15 @@ class Thread extends NylasAPIObject
     private function _updateFolder($folder)
     {
         $allFolders = $this->klass->folders()->all();
+        $folderId = null;
 
         foreach($allFolders as $currentFolder) {
-            if (!empty($currentFolder->name) && $currentFolder->name == $folder) {
+            if ($currentFolder->name == $folder) {
                 $folderId = $currentFolder->id;
+                break;
             }
         }
-
-        if (isset($folderId)) {
+        if (!empty($folderId)) {
             $payload = [
                 "folder_id" => $folderId
             ];
