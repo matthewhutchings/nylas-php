@@ -18,7 +18,8 @@ class Draft extends NylasAPIObject
         'reply_to',
         'thread_id',
         'body',
-        'file_ids'
+        'file_ids',
+        'reply_to_message_id'
     ];
 
     public function __construct($api)
