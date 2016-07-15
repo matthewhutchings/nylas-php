@@ -16,9 +16,10 @@ class Draft extends NylasAPIObject
         'bcc',
         'from',
         'reply_to',
-        'thread_id',
+        'reply_to_message_id',
         'body',
-        'file_ids'
+        'file_ids',
+        'version'
     ];
 
     public function __construct($api)
@@ -40,6 +41,8 @@ class Draft extends NylasAPIObject
         $this->api = $api->api;
         $this->namespace = $api->namespace;
 
+        $this->api->_createResource($this->namespace, $this, $this->data);
+
         return $this;
     }
 
@@ -60,7 +63,7 @@ class Draft extends NylasAPIObject
 
     public function delete()
     {
-        return $this->klass->_deleteResource($this->namespace, $this, $id);
+        return $this->klass->_deleteResource($this->namespace, $this, $this->data['id'], ['version' => $this->data['version']]);
     }
 
     public function attach($fileObj)
