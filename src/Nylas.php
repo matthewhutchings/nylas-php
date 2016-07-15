@@ -304,11 +304,12 @@ class Nylas
         }
     }
 
-    public function _deleteResource($namespace, $klass, $id)
+    public function _deleteResource($namespace, $klass, $id, $data)
     {
         $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id;
         $payload = $this->createHeaders();
+        $payload['json'] = $data;
         $response = $this->json($this->apiClient->delete($url, $payload)->getBody());
 
         return $response;

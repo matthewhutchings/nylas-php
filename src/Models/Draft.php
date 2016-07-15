@@ -91,12 +91,14 @@ class Draft extends NylasAPIObject
         $data = ($data) ? $data : $this->data;
 
         if(array_key_exists('id', $data)) {
-            $resource = $this->api->_updateResource($this->namespace, $this, $id, $data);
+            $resource = $this->api->_updateResource($this->namespace, $this, $data['id'], $data);
         } else {
             $resource = $this->api->_createResource($this->namespace, $this, $data);
         }
 
-        $send_object = new Send($this->api, $this->namespace);
-        return $send_object->send($resource->data);
+        $sendObject = new Send($this->api, $this->namespace);
+        $sendResult = $sendObject->send($resource->data);
+
+        return $sendResult;
     }
 }
