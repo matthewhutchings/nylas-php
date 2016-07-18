@@ -93,7 +93,7 @@ class Thread extends NylasAPIObject
             "unread" => false
         ];
 
-        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        return $this->klass->updateResource($this->namespace, $this, $this->data['id'], $payload);
     }
 
     public function unread() {
@@ -101,7 +101,7 @@ class Thread extends NylasAPIObject
             "unread" => true
         ];
 
-        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        return $this->klass->updateResource($this->namespace, $this, $this->data['id'], $payload);
     }
 
     public function starred() {
@@ -109,7 +109,7 @@ class Thread extends NylasAPIObject
             "starred" => true
         ];
 
-        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        return $this->klass->updateResource($this->namespace, $this, $this->data['id'], $payload);
     }
 
     public function unstarred() {
@@ -117,7 +117,7 @@ class Thread extends NylasAPIObject
             "starred" => false
         ];
 
-        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        return $this->klass->updateResource($this->namespace, $this, $this->data['id'], $payload);
     }
 
     private function _updateTags($add = [], $delete = [])
@@ -148,7 +148,7 @@ class Thread extends NylasAPIObject
             "label_ids" => $labels
         ];
 
-        return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+        return $this->klass->updateResource($this->namespace, $this, $this->data['id'], $payload);
     }
 
     private function _updateFolder($folder)
@@ -167,7 +167,7 @@ class Thread extends NylasAPIObject
                 "folder_id" => $folderId
             ];
 
-            return $this->klass->_updateResource($this->namespace, $this, $this->data['id'], $payload);
+            return $this->klass->updateResource($this->namespace, $this, $this->data['id'], $payload);
         }
 
         return ["success" => false];

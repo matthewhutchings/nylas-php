@@ -26,6 +26,6 @@ class Send extends NylasAPIObject
             $payload = $data;
         }
 
-        return $this->api->_createResource($this->namespace, $this, $payload);
+        return $this->api->createResource($this->namespace, $this, $payload);
     }
 }

@@ -41,7 +41,7 @@ class Draft extends NylasAPIObject
         $this->api = $api->api;
         $this->namespace = $api->namespace;
 
-        $this->api->_createResource($this->namespace, $this, $this->data);
+        $this->api->createResource($this->namespace, $this, $this->data);
 
         return $this;
     }
@@ -63,7 +63,7 @@ class Draft extends NylasAPIObject
 
     public function delete()
     {
-        return $this->klass->_deleteResource($this->namespace, $this, $this->data['id'], ['version' => $this->data['version']]);
+        return $this->klass->deleteResource($this->namespace, $this, $this->data['id'], ['version' => $this->data['version']]);
     }
 
     public function attach($fileObj)
@@ -91,9 +91,9 @@ class Draft extends NylasAPIObject
         $data = ($data) ? $data : $this->data;
 
         if(array_key_exists('id', $data)) {
-            $resource = $this->api->_updateResource($this->namespace, $this, $data['id'], $data);
+            $resource = $this->api->updateResource($this->namespace, $this, $data['id'], $data);
         } else {
-            $resource = $this->api->_createResource($this->namespace, $this, $data);
+            $resource = $this->api->createResource($this->namespace, $this, $data);
         }
 
         $sendObject = new Send($this->api, $this->namespace);

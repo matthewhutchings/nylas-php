@@ -58,7 +58,7 @@ class Event extends NylasAPIObject
         $this->data = $sanitized;
         $this->api = $api;
 
-        return $this->api->_createResource($this->namespace, $this, $this->data);
+        return $this->api->createResource($this->namespace, $this, $this->data);
     }
 
     public function update($data)
@@ -71,12 +71,12 @@ class Event extends NylasAPIObject
             }
         }
 
-        return $this->api->_updateResource($this->namespace, $this, $this->id, $sanitized);
+        return $this->api->updateResource($this->namespace, $this, $this->id, $sanitized);
     }
 
 
     public function delete()
     {
-        return $this->klass->_deleteResource($this->namespace, $this, $this->id);
+        return $this->klass->deleteResource($this->namespace, $this, $this->id);
     }
 }

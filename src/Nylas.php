@@ -18,7 +18,7 @@ class Nylas
         $this->appID     = $appID;
         $this->appSecret = $appSecret;
         $this->apiToken  = $token;
-        $this->apiClient = $this->createApiClient();
+        $this->apiClient = $this->_createApiClient();
 
         if($apiServer) {
             $this->apiServer = $apiServer;
@@ -51,7 +51,7 @@ class Nylas
         return $headers;
     }
 
-    private function createApiClient()
+    private function _createApiClient()
     {
         return new GuzzleClient(['base_url' => $this->apiServer]);
     }
@@ -63,7 +63,7 @@ class Nylas
             "response_type" => "code",
             "scope" => "email",
             "login_hint" => $login_hint,
-            "state" => $this->generateId()
+            "state" => $this->_generateId()
         ];
 
         return $this->apiServer.'/oauth/authorize?'.http_build_query($args);
@@ -82,9 +82,9 @@ class Nylas
         $payload = [];
         $payload['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         $payload['headers']['Accept'] = 'text/plain';
-        $payload['form_params'] = $args;
+        $payload['body'] = $args;
 
-        $response = $this->json($this->apiClient->post($url, $payload)->getBody());
+        $response = $this->apiClient->post($url, $payload)->json();
 
         if(array_key_exists('access_token', $response)) {
             $this->apiToken = $response['access_token'];
@@ -107,7 +107,7 @@ class Nylas
     {
         $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
 
-        $response = $this->json($this->apiClient->post($url, $this->createAdminHeaders())->getBody());
+        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
 
         return $response;
     }
@@ -117,7 +117,7 @@ class Nylas
 
         $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
 
-        $response = $this->json($this->apiClient->post($url, $this->createAdminHeaders())->getBody());
+        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
 
         return $response;
     }
@@ -199,7 +199,7 @@ class Nylas
         $suffix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $url = $this->apiServer.$suffix.'/'.$klass->collectionName;
         $url = $url.'?'.http_build_query($filter);
-        $data = $this->json($this->apiClient->get($url, $this->createHeaders())->getBody());
+        $data = $this->apiClient->get($url, $this->createHeaders())->json();
 
         $mapped = [];
 
@@ -234,7 +234,7 @@ class Nylas
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.$id.$postfix;
         $url = $url.'?'.http_build_query($filters);
 
-        $data = $this->json($this->apiClient->{$method}($url, $this->createHeaders())->getBody());
+        $data = $this->apiClient->{$method}($url, $this->createHeaders())->json();
 
         return $data;
     }
@@ -264,12 +264,12 @@ class Nylas
         $url = $url.'?'.http_build_query($filters);
         $customHeaders = array_merge($this->createHeaders()['headers'], $customHeaders);
         $headers = array('headers' => $customHeaders);
-        $data = $this->json($this->apiClient->get($url, $headers)->getBody());
+        $data = $this->apiClient->get($url, $headers)->json();
 
         return $data;
     }
 
-    public function _createResource($namespace, $klass, $data)
+    public function createResource($namespace, $klass, $data)
     {
         $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName;
@@ -277,45 +277,45 @@ class Nylas
 
         if($klass->collectionName == 'files') {
             $payload['headers']['Content-Type'] = 'multipart/form-data';
-            $payload['multipart'] = [$data];
+            $payload['body'] = $data;
         } else {
             $payload['headers']['Content-Type'] = 'application/json';
             $payload['json'] = $data;
         }
 
-        $response = $this->json($this->apiClient->post($url, $payload)->getBody());
+        $response = $this->apiClient->post($url, $payload)->json();
 
         return $klass->_createObject($this, $namespace, $response);
     }
 
-    public function _updateResource($namespace, $klass, $id, $data)
+    public function updateResource($namespace, $klass, $id, $data)
     {
         $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id;
 
         if($klass->collectionName == 'files') {
             $payload['headers']['Content-Type'] = 'multipart/form-data';
-            $payload['multipart'] = [$data];
+            $payload['body'] = [$data];
         } else {
             $payload = $this->createHeaders();
             $payload['json'] = $data;
-            $response = $this->json($this->apiClient->put($url, $payload)->getBody());
+            $response = $this->apiClient->put($url, $payload)->json();
             return $klass->_createObject($this, $namespace, $response);
         }
     }
 
-    public function _deleteResource($namespace, $klass, $id, $data)
+    public function deleteResource($namespace, $klass, $id, $data)
     {
         $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id;
         $payload = $this->createHeaders();
         $payload['json'] = $data;
-        $response = $this->json($this->apiClient->delete($url, $payload)->getBody());
+        $response = $this->apiClient->delete($url, $payload)->json();
 
         return $response;
     }
 
-    private function generateId() {
+    private function _generateId() {
         // Generates unique UUID
         return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             mt_rand(0, 0xffff),
@@ -327,9 +327,5 @@ class Nylas
             mt_rand(0, 0xffff),
             mt_rand(0, 0xffff)
         );
-    }
-
-    private function json($stream) {
-        return json_decode((string) $stream, true);
     }
 }
