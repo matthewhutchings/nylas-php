@@ -86,18 +86,10 @@ class Draft extends NylasAPIObject
         return $this;
     }
 
-    public function send($data = NULL)
+    public function send()
     {
-        $data = ($data) ? $data : $this->data;
-
-        if(array_key_exists('id', $data)) {
-            $resource = $this->api->updateResource($this->namespace, $this, $data['id'], $data);
-        } else {
-            $resource = $this->api->createResource($this->namespace, $this, $data);
-        }
-
         $sendObject = new Send($this->api, $this->namespace);
-        $sendResult = $sendObject->send($resource->data);
+        $sendResult = $sendObject->send($this->data);
 
         return $sendResult;
     }
