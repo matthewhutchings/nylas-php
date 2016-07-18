@@ -53,7 +53,7 @@ class NylasModelCollection
 
     public function all($limit = INF)
     {
-        return $this->_range($this->filter['offset'], $limit);
+        return $this->range($this->filter['offset'], $limit);
     }
 
     public function where($filter, $filters = [])
@@ -76,7 +76,7 @@ class NylasModelCollection
         return $this->klass->create($data, $this);
     }
 
-    private function _range($offset, $limit)
+    public function range($offset, $limit)
     {
         $result = [];
         while (count($result) < $limit) {
