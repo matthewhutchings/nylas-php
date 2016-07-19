@@ -176,14 +176,14 @@ class Nylas
         return new NylasModelCollection($msgObj, $this, NULL, [], 0, []);
     }
 
-    public function deltas($cursor = NULL)
+    public function deltas($cursor = NULL, $filters = [])
     {
-        $filters = ['extra' => 'latest_cursor'];
-        $method = 'post';
-
         if(!empty($cursor)) {
-            $filters = ['cursor' => $cursor];
+            $filters['cursor'] = $cursor;
             $method = 'get';
+        } else {
+            $filters = ['extra' => 'latest_cursor'];
+            $method = 'post';
         }
 
         $apiObj = new NylasAPIObject();
