@@ -4,6 +4,8 @@ namespace Nylas;
 
 use Nylas\Models;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Event\AbstractTransferEvent;
+use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
 
 class Nylas
 {
@@ -53,7 +55,15 @@ class Nylas
 
     private function _createApiClient()
     {
-        return new GuzzleClient(['base_url' => $this->apiServer]);
+        $retry = new RetrySubscriber([
+            'filter' => RetrySubscriber::createStatusFilter(),
+            'max' => 10
+        ]);
+
+        $client = new GuzzleClient(['base_url' => $this->apiServer]);
+        $client->getEmitter()->attach($retry);
+
+        return $client;
     }
 
     public function createAuthURL($redirect_uri, $login_hint = NULL) {
