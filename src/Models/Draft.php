@@ -60,13 +60,7 @@ class Draft extends NylasAPIObject
         $this->api = $api->api;
         $this->namespace = $api->namespace;
 
-        if(array_key_exists('id', $this->data)) {
-            $tmpId = $this->data['id'];
-        } else {
-            $tmpId = $id;
-        }
-
-        $this->api->updateResource($this->namespace, $this, $tmpId, $this->data);
+        $this->api->updateResource($this->namespace, $this, $id, $this->data);
 
         return $this;
     }

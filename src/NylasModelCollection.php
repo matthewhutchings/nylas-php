@@ -76,6 +76,11 @@ class NylasModelCollection
         return $this->klass->create($data, $this);
     }
 
+    public function update($data, $id)
+    {
+        return $this->klass->update($data, $id, $this);
+    }
+
     public function range($offset, $limit)
     {
         $result = [];
