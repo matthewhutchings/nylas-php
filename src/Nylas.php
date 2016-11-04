@@ -60,7 +60,7 @@ class Nylas
             'max' => 10
         ]);
 
-        $client = new GuzzleClient(['base_url' => $this->apiServer]);
+        $client = new GuzzleClient(['base_url' => $this->apiServer, 'timeout' => 150]);
         $client->getEmitter()->attach($retry);
 
         return $client;
