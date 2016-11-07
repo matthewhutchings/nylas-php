@@ -6,6 +6,7 @@ use Nylas\Models;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Event\AbstractTransferEvent;
 use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
+use Send;
 
 class Nylas
 {
@@ -184,6 +185,14 @@ class Nylas
     {
         $msgObj = new Models\Folder($this);
         return new NylasModelCollection($msgObj, $this, NULL, [], 0, []);
+    }
+
+    public function sendMessage($data)
+    {
+        $sendObject = new Models\Send($this, null);
+        $sendResult = $sendObject->send($data);
+
+        return $sendResult;
     }
 
     public function deltas($cursor = NULL, $filters = [])

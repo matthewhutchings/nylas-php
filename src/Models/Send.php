@@ -17,7 +17,7 @@ class Send extends NylasAPIObject
 
     public function send($data)
     {
-        if(array_key_exists('id', $data)) {
+        if(array_key_exists('id', $data) && $data['object'] == 'draft') {
             $payload = [
                 "draft_id" => $data['id'],
                 "version" => $data['version']
