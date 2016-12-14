@@ -116,7 +116,7 @@ class Nylas
 
     public function deactivateAccount($accountId)
     {
-        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
+        $url = "{$this->apiServer}/a/{$this->appID}/accounts/{$accountId}/downgrade";
 
         $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
 
@@ -126,7 +126,7 @@ class Nylas
     public function reactivateAccount($accountId)
     {
 
-        $url = $this->apiServer.'/a/'.$this->appID.'/accounts/'.$accountId.'/downgrade' ;
+        $url = "{$this->apiServer}/a/{$this->appID}/accounts/{$accountId}/upgrade";
 
         $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
 
