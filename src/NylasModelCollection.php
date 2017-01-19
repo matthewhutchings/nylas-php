@@ -22,7 +22,7 @@ class NylasModelCollection
     {
         $offset = 0;
 
-        while (True) {
+        while (true) {
             $items = $this->_getModelCollection($offset, $this->chunkSize);
 
             if(!$items) {

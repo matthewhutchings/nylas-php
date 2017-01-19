@@ -3,9 +3,14 @@
 namespace Nylas;
 
 use Nylas\Models;
-use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Event\AbstractTransferEvent;
-use GuzzleHttp\Subscriber\Retry\RetrySubscriber;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use Send;
 
 class Nylas
@@ -56,15 +61,46 @@ class Nylas
 
     private function _createApiClient()
     {
-        $retry = new RetrySubscriber([
-            'filter' => RetrySubscriber::createStatusFilter(),
-            'max' => 10
+        $handlerStack = HandlerStack::create(new CurlHandler());
+        $handlerStack->push(Middleware::retry($this->retryDecider(), $this->retryDelay()));
+        $client = new Client([
+            'base_uri' => $this->apiServer,
+            'timeout' => 150,
+            'handler' => $handlerStack
         ]);
 
-        $client = new GuzzleClient(['base_url' => $this->apiServer, 'timeout' => 150]);
-        $client->getEmitter()->attach($retry);
-
         return $client;
+    }
+
+    private function retryDecider()
+    {
+        return function($retries, Request $request, Response $response = null, RequestException $exception = null) {
+            // Limit the number of retries to 10
+            if ($retries >= 10) {
+                return false;
+            }
+
+            // Retry connection exceptions
+            if($exception instanceof ConnectException) {
+                return true;
+            }
+
+            if($response) {
+                // Retry on server errors
+                if($response->getStatusCode() >= 500) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    private function retryDelay()
+    {
+        return function($numberOfRetries) {
+            return 2000 * $numberOfRetries;
+        };
     }
 
     public function createAuthURL($redirect_uri, $login_hint = NULL) {
@@ -91,11 +127,10 @@ class Nylas
 
         $url = $this->apiServer.'/oauth/token';
         $payload = [];
-        $payload['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         $payload['headers']['Accept'] = 'text/plain';
-        $payload['body'] = $args;
+        $payload['form_params'] = $args;
 
-        $response = $this->apiClient->post($url, $payload)->json();
+        $response = json_decode($this->apiClient->post($url, $payload)->getBody()->getContents(), true);
 
         if(array_key_exists('access_token', $response)) {
             $this->apiToken = $response['access_token'];
@@ -118,7 +153,7 @@ class Nylas
     {
         $url = "{$this->apiServer}/a/{$this->appID}/accounts/{$accountId}/downgrade";
 
-        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
+        $response = json_decode($this->apiClient->post($url, $this->createAdminHeaders())->getBody()->getContents(), true);
 
         return $response;
     }
@@ -128,7 +163,7 @@ class Nylas
 
         $url = "{$this->apiServer}/a/{$this->appID}/accounts/{$accountId}/upgrade";
 
-        $response = $this->apiClient->post($url, $this->createAdminHeaders())->json();
+        $response = json_decode($this->apiClient->post($url, $this->createAdminHeaders())->getBody()->getContents(), true);
 
         return $response;
     }
@@ -218,7 +253,7 @@ class Nylas
         $suffix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
         $url = $this->apiServer.$suffix.'/'.$klass->collectionName;
         $url = $url.'?'.http_build_query($filter);
-        $data = $this->apiClient->get($url, $this->createHeaders())->json();
+        $data = json_decode($this->apiClient->get($url, $this->createHeaders())->getBody()->getContents(), true);
 
         $mapped = [];
 
@@ -253,7 +288,7 @@ class Nylas
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.$id.$postfix;
         $url = $url.'?'.http_build_query($filters);
 
-        $data = $this->apiClient->{$method}($url, $this->createHeaders())->json();
+        $data = json_decode($this->apiClient->{$method}($url, $this->createHeaders())->getBody()->getContents(), true);
 
         return $data;
     }
@@ -295,14 +330,12 @@ class Nylas
         $payload = $this->createHeaders();
 
         if($klass->collectionName == 'files') {
-            $payload['headers']['Content-Type'] = 'multipart/form-data';
-            $payload['body'] = $data;
+            $payload['multipart'] = $data;
         } else {
-            $payload['headers']['Content-Type'] = 'application/json';
             $payload['json'] = $data;
         }
 
-        $response = $this->apiClient->post($url, $payload)->json();
+        $response = json_decode($this->apiClient->post($url, $payload)->getBody()->getContents(), true);
 
         return $klass->_createObject($this, $namespace, $response);
     }
@@ -313,12 +346,11 @@ class Nylas
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id;
 
         if($klass->collectionName == 'files') {
-            $payload['headers']['Content-Type'] = 'multipart/form-data';
-            $payload['body'] = [$data];
+            $payload['multipart'] = [$data];
         } else {
             $payload = $this->createHeaders();
             $payload['json'] = $data;
-            $response = $this->apiClient->put($url, $payload)->json();
+            $response = json_decode($this->apiClient->put($url, $payload)->getBody()->getContents(), true);
             return $klass->_createObject($this, $namespace, $response);
         }
     }
@@ -329,7 +361,7 @@ class Nylas
         $url = $this->apiServer.$prefix.'/'.$klass->collectionName.'/'.$id;
         $payload = $this->createHeaders();
         $payload['json'] = $data;
-        $response = $this->apiClient->delete($url, $payload)->json();
+        $response = json_decode($this->apiClient->delete($url, $payload)->getBody()->getContents(), true);
 
         return $response;
     }

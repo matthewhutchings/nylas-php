@@ -26,10 +26,13 @@ class File extends NylasAPIObject {
         }
 
         $payload = [
-            "name" => "file",
-            "filename" => $fileName,
-            "contents" => fopen($filePath, 'r')
+            [
+                "name" => "file",
+                "filename" => $fileName,
+                "contents" => fopen($filePath, 'r')
+            ]
         ];
+
         $upload = $this->api->createResource($this->namespace, $this, $payload);
         $data = $upload->data[0];
         $this->data = $data;
