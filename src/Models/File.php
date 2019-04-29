@@ -8,16 +8,17 @@ class File extends NylasAPIObject {
 
     public $collectionName = 'files';
 
-    public function __construct($api)
-    {
+    public function __construct($api) {
         parent::__construct();
         $this->api = $api;
         $this->namespace = NULL;
     }
 
-    public function create($file)
-    {
-        if(is_array($file)) {
+    public function create($file) {
+
+        $resource = $this->klass->getResourceData($this->namespace, $this, '8', ['extra' => 'download']);
+
+        if (is_array($file)) {
             $filePath = $file['path'];
             $fileName = $file['name'];
         } else {
@@ -29,8 +30,8 @@ class File extends NylasAPIObject {
             [
                 "name" => "file",
                 "filename" => $fileName,
-                "contents" => fopen($filePath, 'r')
-            ]
+                "contents" => fopen($filePath, 'r'),
+            ],
         ];
 
         $upload = $this->api->createResource($this->namespace, $this, $payload);
@@ -40,8 +41,9 @@ class File extends NylasAPIObject {
         return $this;
     }
 
-    public function download()
-    {
+    public function download() {
+
+        dd('test');
         $resource = $this->klass->getResourceData($this->namespace, $this, $this->data['id'], ['extra' => 'download']);
         $data = '';
 
