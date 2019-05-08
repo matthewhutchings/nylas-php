@@ -53,9 +53,7 @@ class Nylas {
 
         $data = $this->apiClient->get($url, $this->createHeaders());
 
-        $extension = explode('.', $data->getHeaderLine('Content-Disposition'));
-
-        $fileName = $fileID . '.' . $extension[1];
+        $fileName = $fileID . '.pdf';
 
         Storage::put($fileName, $data->getBody());
 
