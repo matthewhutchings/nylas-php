@@ -12,8 +12,11 @@ class NylasAPIObject {
         return $this->data;
     }
 
-    // Correction
-
+    public function __createObject($klass, $namespace, $objects) {
+        $this->data = $objects;
+        $this->klass = $klass;
+        return $this;
+    }
     public function createObject($klass, $namespace, $objects) {
         $this->data = $objects;
         $this->klass = $klass;
