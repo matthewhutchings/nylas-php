@@ -58,7 +58,7 @@ class Nylas {
         Storage::put($fileName, $data->getBody());
 
         $file = new UploadedFile(
-            storage_path('app/' . $fileName),
+            storage_path($fileName),
             $fileName
         );
 
