@@ -47,7 +47,8 @@ class Nylas {
         return $this->apiServer . '/oauth/authorize?' . http_build_query($args);
     }
 
-    public function downloadFile($fileID) {
+    public function downloadFile($fileID, $user)
+    {
 
         $url = $this->apiServer . '/files/' . $fileID . '/download';
 
@@ -55,14 +56,18 @@ class Nylas {
 
         $fileName = $fileID . '.pdf';
 
-        Storage::put($fileName, $data->getBody());
+        $location = $user->id . '/' . $fileName;
 
-        $file = new UploadedFile(
-            storage_path($fileName),
-            $fileName
-        );
+        $s3 = \Storage::disk('s3');
 
-        return $file;
+        $s3->put($location, $data->getBody(), 'public');
+
+        $data = [
+            'file' =>  $location,
+            'sha1' => sha1($data->getBody())
+        ];
+
+        return $data;
     }
 
     public function getAuthToken($code) {
