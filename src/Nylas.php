@@ -7,14 +7,16 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Nylas\Models;
 
-class Nylas {
+class Nylas
+{
 
     protected $apiServer = 'https://api.nylas.com';
     protected $apiClient;
     protected $apiToken;
     public $apiRoot = '';
 
-    public function __construct($appID, $appSecret, $token = NULL, $apiServer = NULL) {
+    public function __construct($appID, $appSecret, $token = NULL, $apiServer = NULL)
+    {
         $this->appID = $appID;
         $this->appSecret = $appSecret;
         $this->apiToken = $token;
@@ -25,24 +27,31 @@ class Nylas {
         }
     }
 
-    protected function createHeaders() {
+    protected function createHeaders()
+    {
         $token = 'Basic ' . base64_encode($this->apiToken . ':');
-        $headers = array('headers' => ['Authorization' => $token,
-            'X-Nylas-API-Wrapper' => 'php']);
+        $headers = array('headers' => [
+            'Authorization' => $token,
+            'X-Nylas-API-Wrapper' => 'php'
+        ]);
         return $headers;
     }
 
-    private function createApiClient() {
+    private function createApiClient()
+    {
         return new GuzzleClient(['base_url' => $this->apiServer]);
     }
 
-    public function createAuthURL($redirect_uri, $login_hint = NULL) {
-        $args = array("client_id" => $this->appID,
+    public function createAuthURL($redirect_uri, $login_hint = NULL)
+    {
+        $args = array(
+            "client_id" => $this->appID,
             "redirect_uri" => $redirect_uri,
             "response_type" => "code",
             "scope" => "email",
             "login_hint" => $login_hint,
-            "state" => $this->generateId());
+            "state" => $this->generateId()
+        );
 
         return $this->apiServer . '/oauth/authorize?' . http_build_query($args);
     }
@@ -54,6 +63,8 @@ class Nylas {
 
         $data = $this->apiClient->get($url, $this->createHeaders());
 
+        $contents = (string) $data->getBody();
+
         $fileName = $fileID . '.pdf';
 
         $location = $user->id . '/' . $fileName;
@@ -64,17 +75,20 @@ class Nylas {
 
         $data = [
             'file' =>  $location,
-            'sha1' => sha1($data->getBody())
+            'sha1' => sha1($contents)
         ];
 
         return $data;
     }
 
-    public function getAuthToken($code) {
-        $args = array("client_id" => $this->appID,
+    public function getAuthToken($code)
+    {
+        $args = array(
+            "client_id" => $this->appID,
             "client_secret" => $this->appSecret,
             "grant_type" => "authorization_code",
-            "code" => $code);
+            "code" => $code
+        );
 
         $url = $this->apiServer . '/oauth/token';
         $payload = array();
@@ -91,7 +105,8 @@ class Nylas {
         return $this->apiToken;
     }
 
-    public function account() {
+    public function account()
+    {
         $apiObj = new NylasAPIObject();
         $nsObj = new Models\Account();
         $accountData = $this->getResource('', $nsObj, '', array());
@@ -99,48 +114,57 @@ class Nylas {
         return $account;
     }
 
-    public function threads() {
+    public function threads()
+    {
         $msgObj = new Models\Thread($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function messages() {
+    public function messages()
+    {
         $msgObj = new Models\Message($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function drafts() {
+    public function drafts()
+    {
         $msgObj = new Models\Draft($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function labels() {
+    public function labels()
+    {
         $msgObj = new Models\Label($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function files() {
+    public function files()
+    {
         $msgObj = new Models\File($this);
 
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function contacts() {
+    public function contacts()
+    {
         $msgObj = new Models\Contact($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function calendars() {
+    public function calendars()
+    {
         $msgObj = new Models\Calendar($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function events() {
+    public function events()
+    {
         $msgObj = new Models\Event($this);
         return new NylasModelCollection($msgObj, $this, NULL, array(), 0, array());
     }
 
-    public function getResources($namespace, $klass, $filter) {
+    public function getResources($namespace, $klass, $filter)
+    {
         $suffix = ($namespace) ? '/' . $klass->apiRoot . '/' . $namespace : '';
         $url = $this->apiServer . $suffix . '/' . $klass->collectionName;
         $url = $url . '?' . http_build_query($filter);
@@ -153,7 +177,8 @@ class Nylas {
         return $mapped;
     }
 
-    public function getResource($namespace, $klass, $id, $filters) {
+    public function getResource($namespace, $klass, $id, $filters)
+    {
         $extra = '';
         if (array_key_exists('extra', $filters)) {
             $extra = $filters['extra'];
@@ -163,7 +188,8 @@ class Nylas {
         return $klass->_createObject($this, $namespace, $response);
     }
 
-    public function getResourceRaw($namespace, $klass, $id, $filters) {
+    public function getResourceRaw($namespace, $klass, $id, $filters)
+    {
         $extra = '';
         if (array_key_exists('extra', $filters)) {
             $extra = $filters['extra'];
@@ -177,7 +203,8 @@ class Nylas {
         return $data;
     }
 
-    public function getResourceData($namespace, $klass, $id, $filters) {
+    public function getResourceData($namespace, $klass, $id, $filters)
+    {
         $extra = '';
         $customHeaders = array();
         if (array_key_exists('extra', $filters)) {
@@ -198,7 +225,8 @@ class Nylas {
         return $data;
     }
 
-    public function _createResource($namespace, $klass, $data) {
+    public function _createResource($namespace, $klass, $data)
+    {
         $prefix = ($namespace) ? '/' . $klass->apiRoot . '/' . $namespace : '';
         $url = $this->apiServer . $prefix . '/' . $klass->collectionName;
 
@@ -215,7 +243,8 @@ class Nylas {
         return $klass->_createObject($this, $namespace, $response);
     }
 
-    public function _updateResource($namespace, $klass, $id, $data) {
+    public function _updateResource($namespace, $klass, $id, $data)
+    {
         $prefix = ($namespace) ? '/' . $klass->apiRoot . '/' . $namespace : '';
         $url = $this->apiServer . $prefix . '/' . $klass->collectionName . '/' . $id;
 
@@ -230,7 +259,8 @@ class Nylas {
         }
     }
 
-    public function _deleteResource($namespace, $klass, $id) {
+    public function _deleteResource($namespace, $klass, $id)
+    {
         $prefix = ($namespace) ? '/' . $klass->apiRoot . '/' . $namespace : '';
         $url = $this->apiServer . $prefix . '/' . $klass->collectionName . '/' . $id;
 
@@ -239,9 +269,11 @@ class Nylas {
         return $response;
     }
 
-    private function generateId() {
+    private function generateId()
+    {
         // Generates unique UUID
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             mt_rand(0, 0xffff),
             mt_rand(0, 0xffff),
             mt_rand(0, 0xffff),
@@ -252,7 +284,4 @@ class Nylas {
             mt_rand(0, 0xffff)
         );
     }
-
 }
-
-?>
