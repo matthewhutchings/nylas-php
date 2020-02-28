@@ -1,6 +1,6 @@
 # Nylas PHP
 
-**Forked from [nylas/nylas-php](https://github.com/nylas/nylas-php). Adapted for [Activix](https://activix.ca).**
+**Forked from [nylas/nylas-php](https://github.com/nylas/nylas-php). Adapted for [ProcureHQ](https://procurehq.com).**
 
 PHP bindings for the Nylas REST API [https://www.nylas.com](https://www.nylas.com).
 
