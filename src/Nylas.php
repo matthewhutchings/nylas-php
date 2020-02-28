@@ -48,7 +48,7 @@ class Nylas
             "client_id" => $this->appID,
             "redirect_uri" => $redirect_uri,
             "response_type" => "code",
-            "scope" => "email.read_only",
+            "scopes" => "email.read_only",
             "login_hint" => $login_hint,
             "state" => $this->generateId()
         );
