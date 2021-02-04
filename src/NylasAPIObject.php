@@ -5,10 +5,6 @@ class NylasAPIObject
 {
     public $apiRoot;
 
-    public function __construct()
-    {
-    }
-
     public function json()
     {
         return $this->data;
@@ -23,7 +19,7 @@ class NylasAPIObject
 
     public function __get($key)
     {
-        if(array_key_exists($key, $this->data)) {
+        if (array_key_exists($key, $this->data)) {
             return $this->data[$key];
         }
         return NULL;

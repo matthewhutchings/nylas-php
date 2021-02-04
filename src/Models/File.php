@@ -4,8 +4,8 @@ namespace Nylas\Models;
 
 use Nylas\NylasAPIObject;
 
-class File extends NylasAPIObject {
-
+class File extends NylasAPIObject
+{
     public $collectionName = 'files';
 
     public function __construct($api)
@@ -17,7 +17,7 @@ class File extends NylasAPIObject {
 
     public function create($file)
     {
-        if(is_array($file)) {
+        if (is_array($file)) {
             $filePath = $file['path'];
             $fileName = $file['name'];
         } else {
@@ -27,9 +27,9 @@ class File extends NylasAPIObject {
 
         $payload = [
             [
-                "name" => "file",
-                "filename" => $fileName,
-                "contents" => fopen($filePath, 'r')
+                'name' => 'file',
+                'filename' => $fileName,
+                'contents' => fopen($filePath, 'r')
             ]
         ];
 

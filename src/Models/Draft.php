@@ -3,8 +3,6 @@
 namespace Nylas\Models;
 
 use Nylas\NylasAPIObject;
-use Nylas\Models\Person;
-use Nylas\Models\Send;
 
 class Draft extends NylasAPIObject
 {
@@ -31,8 +29,8 @@ class Draft extends NylasAPIObject
     {
         $sanitized = [];
 
-        foreach($this->attrs as $attr) {
-            if(array_key_exists($attr, $data)) {
+        foreach ($this->attrs as $attr) {
+            if (array_key_exists($attr, $data)) {
                 $sanitized[$attr] = $data[$attr];
             }
         }
@@ -50,8 +48,8 @@ class Draft extends NylasAPIObject
     {
         $sanitized = [];
 
-        foreach($this->attrs as $attr) {
-            if(array_key_exists($attr, $data)) {
+        foreach ($this->attrs as $attr) {
+            if (array_key_exists($attr, $data)) {
                 $sanitized[$attr] = $data[$attr];
             }
         }
@@ -72,7 +70,7 @@ class Draft extends NylasAPIObject
 
     public function attach($fileObj)
     {
-        if(array_key_exists('file_ids', $this->data)) {
+        if (array_key_exists('file_ids', $this->data)) {
             $this->data['file_ids'][] = $fileObj->id;
         } else {
             $this->data['file_ids'] = [$fileObj->id];
@@ -83,7 +81,7 @@ class Draft extends NylasAPIObject
 
     public function detach($fileObj)
     {
-        if(in_array($fileObj->id, $this->data['file_ids'])) {
+        if (in_array($fileObj->id, $this->data['file_ids'])) {
             $this->data['file_ids'] = array_diff($this->data['file_ids'], [$fileObj->id]);
         }
 
@@ -93,8 +91,6 @@ class Draft extends NylasAPIObject
     public function send()
     {
         $sendObject = new Send($this->api, $this->namespace);
-        $sendResult = $sendObject->send($this->data);
-
-        return $sendResult;
+        return $sendObject->send($this->data);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Nylas\Models;
 
-class Person {
-
+class Person
+{
     public function __construct($name = NULL, $email = NULL)
     {
         $this->name = $name;
@@ -13,8 +13,8 @@ class Person {
     public function json()
     {
         return [
-            "name"  => $this->name,
-            "email" => $this->email
+            'name'  => $this->name,
+            'email' => $this->email
         ];
     }
 }

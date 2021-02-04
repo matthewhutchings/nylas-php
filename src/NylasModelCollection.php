@@ -13,7 +13,7 @@ class NylasModelCollection
         $this->filter = $filter;
         $this->filters = $filters;
 
-        if(!array_key_exists('offset', $filter)) {
+        if (!array_key_exists('offset', $filter)) {
             $this->filter['offset'] = 0;
         }
     }
@@ -25,7 +25,7 @@ class NylasModelCollection
         while (true) {
             $items = $this->_getModelCollection($offset, $this->chunkSize);
 
-            if(!$items) {
+            if (!$items) {
                 break;
             }
 
@@ -84,15 +84,17 @@ class NylasModelCollection
     public function range($offset, $limit)
     {
         $result = [];
+
         while (count($result) < $limit) {
             $to_fetch = min($limit - count($result), $this->chunkSize);
             $data = $this->_getModelCollection($offset+count($result), $to_fetch);
             $result = array_merge($result, $data);
 
-            if(!$data || count($data) < $to_fetch) {
+            if (!$data || count($data) < $to_fetch) {
                 break;
             }
         }
+
         return $result;
     }
 

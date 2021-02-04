@@ -3,8 +3,6 @@
 namespace Nylas\Models;
 
 use Nylas\NylasAPIObject;
-use Nylas\Models\Send;
-
 
 class Message extends NylasAPIObject
 {
@@ -33,8 +31,6 @@ class Message extends NylasAPIObject
     public function send()
     {
         $sendObject = new Send($this->api, $this->namespace);
-        $sendResult = $sendObject->send($this->data);
-        
-        return $sendResult;
+        return $sendObject->send($this->data);
     }
 }
