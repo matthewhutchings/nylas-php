@@ -5,6 +5,11 @@ class NylasAPIObject
 {
     public $apiRoot;
 
+    public function __construct()
+    {
+        // Do not delete this constructor...
+    }
+
     public function json()
     {
         return $this->data;
