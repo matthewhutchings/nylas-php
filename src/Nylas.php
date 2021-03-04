@@ -21,7 +21,7 @@ use Nylas\Models\Folder;
 use Nylas\Models\Label;
 use Nylas\Models\Message;
 use Nylas\Models\Send;
-use Thread;
+use Nylas\Models\Thread;
 
 class Nylas
 {
