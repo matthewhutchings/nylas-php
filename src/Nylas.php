@@ -74,6 +74,7 @@ class Nylas
 
         return new Client([
             'base_uri' => $this->apiServer,
+            'connect_timeout' => 60,
             'timeout' => 150,
             'handler' => $handlerStack
         ]);
@@ -106,7 +107,7 @@ class Nylas
     private function retryDelay()
     {
         return function($numberOfRetries) {
-            return 2000 * $numberOfRetries;
+            return 60 * $numberOfRetries;
         };
     }
 
