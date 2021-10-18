@@ -82,7 +82,7 @@ class Nylas
 
     private function retryDecider()
     {
-        return function($retries, Request $request, Response $response = null, RequestException|ConnectException $exception = null) {
+        return function($retries, Request $request, Response $response = null, $exception = null) {
             // Limit the number of retries to 10
             if ($retries >= 10) {
                 return false;
