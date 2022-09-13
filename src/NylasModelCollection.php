@@ -3,15 +3,17 @@ namespace Nylas;
 
 class NylasModelCollection
 {
-    private $chunkSize = 50;
+    protected bool $isAdmin;
+    private $chunkSize = 500;
 
-    public function __construct($klass, $api, $namespace = NULL, $filter = [], $offset = 0, $filters = [])
+    public function __construct($klass, $api, $namespace = NULL, $filter = [], $offset = 0, $filters = [], $admin = false)
     {
         $this->klass = $klass;
         $this->api = $api;
         $this->namespace = $namespace;
         $this->filter = $filter;
         $this->filters = $filters;
+        $this->isAdmin = $admin;
 
         if (!array_key_exists('offset', $filter)) {
             $this->filter['offset'] = 0;
@@ -33,9 +35,6 @@ class NylasModelCollection
                 yield $item;
             }
 
-            if (count($items) < $this->chunkSize) {
-                break;
-            }
             $offset += count($items);
         }
     }
@@ -90,7 +89,7 @@ class NylasModelCollection
             $data = $this->_getModelCollection($offset+count($result), $to_fetch);
             $result = array_merge($result, $data);
 
-            if (!$data || count($data) < $to_fetch) {
+            if (!$data) {
                 break;
             }
         }
@@ -108,6 +107,11 @@ class NylasModelCollection
     {
         $this->filter['offset'] = $offset;
         $this->filter['limit'] = $limit;
+
+        if ($this->isAdmin) {
+            return $this->api->getAdminResources($this->namespace, $this->klass, $this->filter);
+        }
+
         return $this->api->getResources($this->namespace, $this->klass, $this->filter);
     }
 

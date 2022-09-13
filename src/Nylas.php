@@ -29,6 +29,7 @@ class Nylas
     protected $apiClient;
     protected $apiToken;
     protected $appSecret;
+    protected $appID;
     public $apiRoot = '';
 
     public function __construct($appID, $appSecret, $token = NULL, $apiServer = NULL)
@@ -175,6 +176,12 @@ class Nylas
         return json_decode($response, true);
     }
 
+    public function accounts()
+    {
+        $msgObj = new Account();
+        return new NylasModelCollection($msgObj, $this, $this->appID, [], 0, [], true);
+    }
+
     public function threads()
     {
         $msgObj = new Thread($this);
@@ -250,6 +257,22 @@ class Nylas
         $deltasData = $this->getResource('', $nsObj, '', $filters, $method);
 
         return $apiObj->_createObject($deltasData->klass, NULL, $deltasData->data);
+    }
+
+    public function getAdminResources($namespace, $klass, $filter)
+    {
+        $suffix = ($namespace) ? '/a/'.$namespace : '';
+        $url = $this->apiServer.$suffix.'/'.($klass->collectionAdminName ?? $klass->collectionName);
+        $url = $url.'?'.http_build_query($filter);
+        $data = json_decode($this->apiClient->get($url, $this->createAdminHeaders())->getBody()->getContents(), true);
+
+        $mapped = [];
+
+        foreach ($data as $i) {
+            $mapped[] = clone $klass->_createObject($this, $namespace, $i);
+        }
+
+        return $mapped;
     }
 
     public function getResources($namespace, $klass, $filter)
