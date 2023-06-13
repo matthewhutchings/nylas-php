@@ -275,6 +275,17 @@ class Nylas
         return $mapped;
     }
 
+    public function deleteAdminResources($namespace, $klass, $id, $data)
+    {
+        $prefix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
+        $url = $this->apiServer.$prefix.'/'.($klass->collectionAdminName ?? $klass->collectionName).'/'.$id;
+        $payload = $this->createAdminHeaders();
+        $payload['json'] = $data;
+        $response = $this->apiClient->delete($url, $payload)->getBody()->getContents();
+
+        return json_decode($response, true);
+    }
+
     public function getResources($namespace, $klass, $filter)
     {
         $suffix = ($namespace) ? '/'.$klass->apiRoot.'/'.$namespace : '';
